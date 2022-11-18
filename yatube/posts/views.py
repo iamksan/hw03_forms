@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Group, Post, User
 
 
-
 def index(request):
     post_list = Post.objects.all().order_by('-pub_date')
     template = 'posts/index.html'
@@ -32,6 +31,7 @@ def group_posts(request, slug):
     }
     return render(request, template, context)
 
+
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     all_posts = Post.objects.all().filter(author__username=username)
@@ -44,7 +44,7 @@ def profile(request, username):
         'page': page,
         'author': author,
         'counter': counter
-    } 
+    }
 
     return render(request, template, context)
 
@@ -56,6 +56,7 @@ def post_detail(request, post_id):
     context = {'post': post}
 
     return render(request, template, context)
+
 
 @login_required(login_url="users:login")
 def post_create(request):
