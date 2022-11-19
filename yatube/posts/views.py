@@ -1,59 +1,66 @@
 from django.contrib.auth.decorators import login_required
-
-from django.core.paginator import Paginator
-
-from .forms import PostForm
-
 from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import PostForm
 from .models import Group, Post, User
+from .utils import paginations
 
 
 def index(request):
-    post_list = Post.objects.all().order_by('-pub_date')
-    template = 'posts/index.html'
-    paginator = Paginator(post_list, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    """Вывод POST_PER_PAGE объектов модели Post,
+    отсортированных по полю pub_date по убыванию,
+    с учетом номера страницы переданного в GET.
+    """
+
+    post_list = Post.objects.all()
+    page_obj = paginations(request, post_list)
+
     context = {
-        'page_obj': page_obj
+        "page_obj": page_obj,
     }
-    return render(request, template, context)
+    return render(request, "posts/index.html", context)
 
 
 def group_posts(request, slug):
+    """Страница список постов."""
     group = get_object_or_404(Group, slug=slug)
-    posts = group.posts.all()[:10]
-    template = 'posts/group_list.html'
+
+    post_list = group.posts.all()
+    page_obj = paginations(request, post_list)
+
+    template = "posts/group_list.html"
     context = {
-        'group': group,
-        'posts': posts
+        "group": group,
+        "page_obj": page_obj,
     }
     return render(request, template, context)
 
 
 def profile(request, username):
+    """Список постов пользователя, общее количество постов,
+    инофрмация о пользователе."""
+
     author = get_object_or_404(User, username=username)
-    all_posts = Post.objects.all().filter(author__username=username)
-    counter = all_posts.count()
-    paginator = Paginator(all_posts, 5)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-    template = 'posts/profile.html'
+
+    post_list = author.posts.all()
+    page_obj = paginations(request, post_list)
+
+    template = "posts/profile.html"
     context = {
-        'page': page,
-        'author': author,
-        'counter': counter
+        "page_obj": page_obj,
+        "author": author,
     }
 
     return render(request, template, context)
 
 
 def post_detail(request, post_id):
+    """Страница поста и количество постов пользователя."""
+
     post = get_object_or_404(Post, pk=post_id)
 
-    template = 'posts/post_detail.html'
-    context = {'post': post}
+    template = "posts/post_detail.html"
+    context = {"post": post}
 
     return render(request, template, context)
 
