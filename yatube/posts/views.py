@@ -74,7 +74,7 @@ def post_create(request):
     form = PostForm(request.POST or None)
     if form.is_valid():
         instance = form.save(commit=False)
-        instance.author = request.user.id
+        instance.author.id = request.user.id
         instance.save()
         return redirect("posts:profile", request.user)
 
