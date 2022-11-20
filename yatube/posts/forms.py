@@ -13,12 +13,3 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ("text", "group")
 
-    def clean_text(self):
-        data = self.cleaned_data["text"]
-
-        if len(data) < POST_MIN_LEN:
-            raise forms.ValidationError(
-                f"Длинна поста должна быть не менее {POST_MIN_LEN} символов!"
-            )
-
-        return data
