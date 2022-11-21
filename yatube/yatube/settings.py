@@ -20,12 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "9^%3wz7tb1*%r!9p$*&ylrvgq3soz7rof5-$@2yn56@z^pe859"
+SECRET_KEY = 'i$%4d17u6lwxrsspygia($ckui6ruz8t1#%=9k5)-hz)k16)h8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"]
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+]
 
 
 # Application definition
@@ -125,7 +130,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "static")
 ]
 
 LOGIN_URL = "users:login"
@@ -134,6 +139,3 @@ LOGIN_REDIRECT_URL = "posts:index"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
-
-POST_MIN_LEN = 1
-POST_PER_PAGE = 10

@@ -1,57 +1,53 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import Paginator
 
 from .forms import PostForm
 from .models import Group, Post, User
-from .utils import paginations
 
+
+NUM_OF_POSTS = 10
 
 def index(request):
-    """Вывод POST_PER_PAGE объектов модели Post,
-    отсортированных по полю pub_date по убыванию,
-    с учетом номера страницы переданного в GET.
-    """
-
+    text = 'Последние обновления на сайте'
     post_list = Post.objects.all()
-    page_obj = paginations(request, post_list)
-
-    context = {
-        "page_obj": page_obj,
-    }
-    return render(request, "posts/index.html", context)
+    paginator = Paginator(post_list, NUM_OF_POSTS)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {'page_obj': page_obj, 'text': text}
+    template = 'posts/index.html'
+    return render(request, template, context)
 
 
 def group_posts(request, slug):
-    """Страница список постов."""
     group = get_object_or_404(Group, slug=slug)
-
     post_list = group.posts.all()
-    page_obj = paginations(request, post_list)
-
-    template = "posts/group_list.html"
+    paginator = Paginator(post_list, NUM_OF_POSTS)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "group": group,
-        "page_obj": page_obj,
+        'page_obj': page_obj,
+        'group': group,
     }
-    return render(request, template, context)
+    return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
-    """Список постов пользователя, общее количество постов,
-    инофрмация о пользователе."""
-
-    author = get_object_or_404(User, username=username)
-
-    post_list = author.posts.all()
-    page_obj = paginations(request, post_list)
-
-    template = "posts/profile.html"
+    profile = get_object_or_404(User, username=username)
+    post_list = (
+        Post.objects.select_related("author", "group")
+        .filter(author=profile).all()
+    )
+    posts_count = post_list.count()
+    paginator = Paginator(post_list, NUM_OF_POSTS)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "page_obj": page_obj,
-        "author": author,
+        'profile': profile,
+        'posts_count': posts_count,
+        'page_obj': page_obj,
     }
-
-    return render(request, template, context)
+    return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
